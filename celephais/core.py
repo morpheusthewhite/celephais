@@ -1,12 +1,18 @@
 import cv2 as cv
-import celephais.common
-import celephais.face_detection as face_detection
+import os
+
+from celephais import utils
+from celephais import face_detection
 
 def main():
-    img = cv.imread('../class.jpg')
+    parser = utils.CelephaisParser()
+    parsed_args = parser.parse_args()
+
+    img_path = os.path.join(os.getcwd(), parsed_args.image)
+
+    img = cv.imread(img_path)
 
     face_detection.face_detection_draw_rectangles(img)
-    celephais.common.CelephaisParser()
     cv.imshow('sample image', img)
     cv.waitKey(0)
     cv.destroyAllWindows()
