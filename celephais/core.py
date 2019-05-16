@@ -17,6 +17,8 @@ source_group.add_argument("--image", type=str, help="the image file in which to 
 source_group.add_argument("--xml", type=str, help="the xml file which contains required metadata")
 parser_detection.add_argument("--show", action="store_true", help="show the detected faces in a window, "
                                                                   "otherwise just prints the number")
+parser_detection.add_argument("--ojson", help="if specified, and if --xml is given, metadata are saved "
+                                              "with the given filename")
 
 def main():
     parsed_args = parser.parse_args()
@@ -38,16 +40,18 @@ def main():
         cv.imshow('sample image', img)
         cv.waitKey(0)
         cv.destroyAllWindows()
-    else:
+    else: # if show is not specified the number of face detected are printed on stdout
         face_detected = face_detection.face_detection_count(img)
-        print("detected " + str(face_detected) +" faces")
+        print("detected " + str(face_detected) +" faces in " + img_path)
 
-        # print to stdout the final json file
-        if parsed_args.xml is not None:
-            parsed_dict.pop("photo")
+    # save the final json file
+    if parsed_args.xml is not None and parsed_args.ojson is not None:
+        parsed_dict.pop("photo")
 
-            parsed_dict["students"] = face_detected
-            print(json.dumps(parsed_dict))
+        parsed_dict["students"] = face_detected
+
+        with open(os.path.join(os.getcwd(), parsed_args.ojson), "w") as f:
+            f.write(json.dumps(parsed_dict))
 
 if __name__ == '__main__':
     main()
