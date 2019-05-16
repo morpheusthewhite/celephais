@@ -3,14 +3,12 @@ import os
 import pkg_resources
 
 CLASSIFIERS_FOLDER = "classifiers"
+
 CLASSIFIER_FILENAME_FRONTAL = pkg_resources.resource_filename(__name__,
-                                                            os.path.join("..",
-                                                                         CLASSIFIERS_FOLDER +
-                                                                         '/haarcascade_frontalface_default.xml'))
+                                                            os.path.join(CLASSIFIERS_FOLDER + '/haarcascade_frontalface_default.xml'))
 CLASSIFIER_FILENAME_PROFILE = pkg_resources.resource_filename(__name__,
-                                                            os.path.join("..",
-                                                                         CLASSIFIERS_FOLDER +
-                                                                         '/haarcascade_profileface.xml'))
+                                                            os.path.join(CLASSIFIERS_FOLDER + '/haarcascade_profileface.xml'))
+
 OVERLAPPING_THRESHOLD = 0.9
 
 face_cascade_frontal = cv.CascadeClassifier(os.path.join(CLASSIFIERS_FOLDER, CLASSIFIER_FILENAME_FRONTAL))
