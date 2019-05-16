@@ -29,7 +29,7 @@ def parse_xmls(xml_path):
 
     # if a directory is passed
     if os.path.isdir(xml_path):
-        xmls_listed = os.listdir(xml_path)
+        xmls_listed = filter(lambda x: x.endswith(".xml"), os.listdir(xml_path))
 
         # then all the files in the dir will be analyzed
         for xml in xmls_listed:
