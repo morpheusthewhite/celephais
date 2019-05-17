@@ -16,7 +16,7 @@ VERSION = '0.1.0'
 
 # What packages are required for this module to be executed?
 REQUIRED = [
-    "opencv-python"
+    "opencv-python", "keras", "pandas"
 ]
 
 # What packages are optional?

@@ -1,5 +1,6 @@
 import xml.etree.ElementTree as ET
 
+
 def xml_parse(filename):
     tree = ET.parse(filename)
     root = tree.getroot()
