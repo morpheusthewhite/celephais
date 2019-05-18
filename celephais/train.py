@@ -1,7 +1,19 @@
+import warnings
+# clear stdout from FutureWarning
+warnings.simplefilter(action='ignore', category=FutureWarning)
+
 import pandas
+
+import os
+import sys
+stderr = sys.stderr
+sys.stderr = open(os.devnull, 'w')
+# remove "using XXX backend" from stderr
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasRegressor
+sys.stderr = stderr
+
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
 
