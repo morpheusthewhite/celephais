@@ -32,6 +32,9 @@ def solve_assignment_problem(rooms_seats, lessons_students):
 
     # create CPLEX object
     cplex_model = cplex.Cplex()
+    cplex_model.set_log_stream(None)
+    cplex_model.set_warning_stream(None)
+    cplex_model.set_results_stream(None)
 
     # creating the vector of the decision variables
     y_vars_name = ["y" + str(i) + str(j) for i in range(n_students) for j in range(n_rooms)]
@@ -71,7 +74,6 @@ def solve_assignment_problem(rooms_seats, lessons_students):
         return
 
     solution = cplex_model.solution
-    print(solution.get_objective_value())
 
     var_values = solution.get_values(0, cplex_model.variables.get_num() - 1)
 
