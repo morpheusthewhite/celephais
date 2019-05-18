@@ -98,6 +98,10 @@ def main():
         dict_prediction_parsed = metadata.xml_parse(xml_path)
         dicts_prediction_parsed.append(dict_prediction_parsed)
 
+    if dicts_prediction_parsed == []:
+        print("No xml file for prediction found, exiting...")
+        return
+
     # predict and print the result
     print(model.predict(dicts_prediction_parsed))
 

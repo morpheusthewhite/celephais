@@ -87,4 +87,16 @@ class StudentsEstimator:
         dp = pandas.DataFrame(prediction_data)
 
         X = self.transform_data(dp)
-        return self.estimator.predict(X)
+        predictions_float = self.estimator.predict(X)
+
+        n_predictions = len(X.index)
+        if n_predictions == 1:
+            # replace the single element with a list of 1 element
+            predictions_float = [predictions_float]
+
+        predictions_int = []
+        # casting all predictions to int
+        for prediction_float in predictions_float:
+            predictions_int.append(int(prediction_float))
+
+        return predictions_int
