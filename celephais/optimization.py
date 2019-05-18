@@ -1,18 +1,18 @@
 import cplex
 
 
-def calculate_obj_vector(rooms_seats, lessons_students, rooms_are_rows=True):
+def calculate_obj_vector(rooms_seats, lessons_students, rooms_are_rows=False):
 
     costs = []
 
     if rooms_are_rows:
         for room_seats in rooms_seats:
             for lesson_students in lessons_students:
-                costs.append((room_seats - lesson_students) / room_seats)
+                costs.append((lesson_students) / room_seats)
     else:
         for lesson_students in lessons_students:
             for room_seats in rooms_seats:
-                costs.append((room_seats - lesson_students) / room_seats)
+                costs.append((lesson_students) / room_seats)
 
     return costs
 
@@ -34,7 +34,7 @@ def solve_assignment_problem(rooms_seats, lessons_students):
     cplex_model = cplex.Cplex()
 
     # creating the vector of the decision variables
-    y_vars_name = ["y" + str(i) + str(j) for i in range(n_rooms) for j in range(n_students)]
+    y_vars_name = ["y" + str(i) + str(j) for i in range(n_students) for j in range(n_rooms)]
     cplex_model.variables.add(names=y_vars_name,
                               types=[cplex_model.variables.type.binary] * n_students * n_rooms,
                               obj=cost_vector)
@@ -55,6 +55,14 @@ def solve_assignment_problem(rooms_seats, lessons_students):
         senses=["L"] * n_rooms,
         rhs=[1] * n_rooms,
         range_values=[0] * n_rooms)
+
+    cplex_model.linear_constraints.add(
+        lin_expr=[cplex.SparsePair(ind=["y" + str(i) + str(j)], val=[lessons_students[i]])
+                  for i in range(n_students) for j in range(n_rooms)],
+        senses=["L"] * n_rooms * n_students,
+        rhs=[rooms_seats[j] for i in range(n_students) for j in range(n_rooms)],
+        range_values=[0] * n_rooms * n_students)
+
 
     try:
         cplex_model.solve()
