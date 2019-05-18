@@ -13,19 +13,19 @@ parser = argparse.ArgumentParser(prog="Celephais")
 
 # creating parser for the detection command
 source_group = parser.add_mutually_exclusive_group(required=True)
-source_group.add_argument("--image", type=str, help="the image file in which to detect faces")
-source_group.add_argument("--xml", type=str, help="the xml file which contains required metadata")
+source_group.add_argument("--image", type=str, help="the image file or folder in which to detect faces")
+source_group.add_argument("--xml", type=str, help="the xml file or folder which contains required metadata")
 source_group.add_argument("--json", type=str, help="the json file which contains dataset for training (--ojson and "
                                                    "--show will have no effect)")
 
 out_group = parser.add_mutually_exclusive_group(required=False)
 out_group.add_argument("--show", action="store_true", help="show the detected faces in a window, "
-                                                                  "otherwise just prints the number")
+                                                           "otherwise just prints the number")
 out_group.add_argument("--ojson", help="if specified, and if --xml is given, metadata are saved "
-                                              "with the given filename")
+                                       "with the given filename")
 train_group = parser.add_mutually_exclusive_group(required=True)
-train_group.add_argument("--no-train", help="will exit before training the model", action="store_true")
-train_group.add_argument("--predict-xml", help="predict parsing the given xml data (folder or file)")
+train_group.add_argument("--no-train", help="exit before training the model", action="store_true")
+train_group.add_argument("--predict-xml", help="the xml data (folder or file) to predict")
 
 
 def main():
