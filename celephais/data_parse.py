@@ -27,15 +27,17 @@ def parse_xmls(xml_path):
     """
     xml_paths = []
 
+    xml_path_abs = os.path.join(os.getcwd(), xml_path)
+
     # if a directory is passed
-    if os.path.isdir(xml_path):
+    if os.path.isdir(xml_path_abs):
         xmls_listed = filter(lambda x: x.endswith(".xml"), os.listdir(xml_path))
 
         # then all the files in the dir will be analyzed
         for xml in xmls_listed:
-            xml_paths.append(os.path.join(os.getcwd(), xml_path, xml))
+            xml_paths.append(os.path.join(xml_path_abs, xml))
     else:
         # only the given xml is analyzed
-        xml_paths.append(os.path.join(os.getcwd(), xml_path))
+        xml_paths.append(xml_path_abs)
 
     return xml_paths

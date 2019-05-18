@@ -50,7 +50,7 @@ class StudentsEstimator:
             int_label_subjects = self.label_encoder_subjects.fit_transform(subjects_unencoded).reshape(-1, 1)
             subjects_frame = pandas.DataFrame(self.one_hot_encoder_subjects.fit_transform(int_label_subjects))
         else:
-            int_label_subjects = self.label_encoder_subjects.transform(data_frame).reshape(-1, 1)
+            int_label_subjects = self.label_encoder_subjects.transform(subjects_unencoded).reshape(-1, 1)
             subjects_frame = pandas.DataFrame(self.one_hot_encoder_subjects.transform(int_label_subjects))
 
         X_subjects_encoded = pandas.concat([subjects_frame, data_frame.drop("subject", axis=1)], axis=1)

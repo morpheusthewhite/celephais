@@ -23,7 +23,9 @@ out_group.add_argument("--show", action="store_true", help="show the detected fa
                                                                   "otherwise just prints the number")
 out_group.add_argument("--ojson", help="if specified, and if --xml is given, metadata are saved "
                                               "with the given filename")
-parser.add_argument("--no-train", help="will exit before training the model", action="store_true")
+train_group = parser.add_mutually_exclusive_group(required=True)
+train_group.add_argument("--no-train", help="will exit before training the model", action="store_true")
+train_group.add_argument("--predict-xml", help="predict parsing the given xml data (folder or file)")
 
 
 def main():
@@ -44,7 +46,6 @@ def main():
             img_filename = parsed_dict["photo"]
             img_paths.append(os.path.join(os.path.split(xml_path)[0], img_filename))
 
-    # TODO: add list for dicts and write them to fle
     dicts_detected = []
 
     for img_path in img_paths:
@@ -88,6 +89,17 @@ def main():
     print("Training the model..")
     model.train()
     print("Training completed")
+
+    xml_predict_paths = data_parse.parse_xmls(parsed_args.predict_xml)
+
+    # read xlms which contains data to predict
+    dicts_prediction_parsed = []
+    for xml_path in xml_predict_paths:
+        dict_prediction_parsed = metadata.xml_parse(xml_path)
+        dicts_prediction_parsed.append(dict_prediction_parsed)
+
+    # predict and print the result
+    print(model.predict(dicts_prediction_parsed))
 
 
 if __name__ == '__main__':

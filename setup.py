@@ -101,7 +101,7 @@ setup(
 
     install_requires=REQUIRED,
     extras_require=EXTRAS,
-    zip_safe = False,
+    zip_safe=False,
     include_package_data=True,
     package_data={'celephais': ['classifiers/*.xml']},
     # package_data={'': ["classifiers/*.xml"]},
