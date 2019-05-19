@@ -7,6 +7,7 @@ from celephais import face_detection
 from celephais import metadata
 from celephais import data_parse
 from celephais import train
+from celephais import optimization
 
 # creating top-level parser
 parser = argparse.ArgumentParser(prog="Celephais")
@@ -25,11 +26,17 @@ out_group.add_argument("--ojson", help="if specified, and if --xml is given, met
                                        "with the given filename")
 train_group = parser.add_mutually_exclusive_group(required=True)
 train_group.add_argument("--no-train", help="exit before training the model", action="store_true")
-train_group.add_argument("--predict-xml", help="the xml data (folder or file) to predict")
+train_group.add_argument("--predict-xml", help="the xml data (folder or file) of lessons to predict")
+parser.add_argument("--rooms-json", help="the json containing the rooms in which classes will be allocated")
 
 
 def main():
     parsed_args = parser.parse_args()
+
+    if not parsed_args.no_train and parsed_args.rooms_json is None:
+        print("--rooms-json needed when --no-train is missing")
+        parser.print_help()
+        return
 
     img_paths = []
     if parsed_args.image is not None:
@@ -58,7 +65,7 @@ def main():
             continue
         else:  # if show is not specified the number of face detected are printed on stdout
             face_detected = face_detection.face_detection_count(img)
-            print("detected " + str(face_detected) +" faces in " + img_path)
+            print("detected " + str(face_detected) + " faces in " + img_path)
 
         # save the final json file
         if parsed_args.xml is not None:
@@ -103,7 +110,23 @@ def main():
         return
 
     # predict and print the result
-    print(model.predict(dicts_prediction_parsed))
+
+    students_predicted = model.predict(dicts_prediction_parsed)
+
+    for index, students in enumerate(students_predicted):
+        dicts_prediction_parsed[index]["students"] = students
+
+    with open(os.path.join(os.getcwd(), parsed_args.rooms_json)) as f:
+        rooms = json.load(f)
+
+    solution = optimization.assign_classes(dicts_prediction_parsed, rooms)
+
+    for time, events in solution.items():
+        for event in events:
+            print("{time}: {subject} with {students} students in {room}".format(time=time,
+                                                                                subject=event["subject"],
+                                                                                students=event["students"],
+                                                                                room=event["room"]))
 
 
 if __name__ == '__main__':
