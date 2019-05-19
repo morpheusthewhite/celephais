@@ -7,6 +7,11 @@ verify_ssl = true
 
 [packages]
 celephais = {path = "."}
+keras = "*"
+opencv-python = "*"
+pandas = "*"
+scikit-learn = "*"
+cplex = "*"
 
 [requires]
 python_version = "3.5"
