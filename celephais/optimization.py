@@ -1,5 +1,6 @@
 import cplex
 
+from celephais import metadata
 
 def calculate_obj_vector(rooms_seats, lessons_students, rooms_are_rows=False):
 
@@ -78,3 +79,33 @@ def solve_assignment_problem(rooms_seats, lessons_students):
     var_values = solution.get_values(0, cplex_model.variables.get_num() - 1)
 
     return var_values
+
+
+def assign_classes(classes, rooms):
+    # first group classes by time
+    classes_grouped = metadata.group_by_time(classes)
+
+    rooms_cap = list(map(lambda x: x["cap"], rooms))
+    n_rooms = len(rooms_cap)
+
+    result = {}
+
+    # solving the problem for each time
+    for time, classes in classes_grouped.items():
+        students_list = list(map(lambda d: d["students"], classes))
+
+        solution = solve_assignment_problem(rooms_cap, students_list)
+
+        for i in range(len(solution)):
+            if solution[i] == 1:
+                lesson_index = int(i/n_rooms)
+                room_index = i % n_rooms
+
+                class_ = classes[lesson_index]
+                class_["room"] = rooms[room_index]["name"]
+                try:
+                    result[time].append(class_)
+                except KeyError:
+                    result[time] = [class_]
+
+    return result
