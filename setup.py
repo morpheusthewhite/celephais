@@ -7,7 +7,8 @@ from setuptools import find_packages, setup, Command
 
 # Package meta-data.
 NAME = 'celephais'
-DESCRIPTION = '' # TODO
+DESCRIPTION = 'A program to detect students from photos, predict their flow in the future lessons and assign them ' \
+              'optimally to a set of classrooms'
 URL = 'https://github.com/morpheusthewhite/celephais'
 EMAIL = 'zffromGerace@gmail.com'
 AUTHOR = 'morpheusthewhite'
