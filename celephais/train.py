@@ -16,6 +16,8 @@ sys.stderr = stderr
 
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 
+PARTITION_PROPORTION_TRAIN = 0.9
+
 
 # define base model
 def baseline_model(inputs=9):
@@ -32,14 +34,19 @@ def baseline_model(inputs=9):
 
 
 class StudentsEstimator:
-    def __init__(self, training_data):
+    def __init__(self, training_data, partitionate_dataset=False):
+        """
+        :param training_data: the dataset (unencoded) which will be used for train/test
+        :param partitionate_dataset: if True divides the given data into training and test, which will
+        be used when called .train() and .test(), if False all dataset will be used for training
+        """
         if training_data == []:
             print("No data available, exiting train")
             return
 
         df = pandas.DataFrame(training_data)
 
-        self.Y_train = df["students"]
+        self.Y = df["students"]
         X_unencoded = df.drop("students", axis=1)
 
         # creating encoders for next encodings
@@ -48,7 +55,21 @@ class StudentsEstimator:
         self.label_encoder_days = LabelEncoder()
         self.one_hot_encoder_days = OneHotEncoder(sparse=False)
 
-        self.X_train = self.transform_data(X_unencoded, fit=True)
+        self.X = self.transform_data(X_unencoded, fit=True)
+        if not partitionate_dataset:
+            # entire dataset in used in training
+            self.X_train = self.X
+            self.X_test = None
+            self.Y_train = self.Y
+            self.Y_test = None
+        else:
+            # dataset is partitioned in train and test sets
+            n_entries = len(self.X)
+            n_entries_train = int(n_entries * PARTITION_PROPORTION_TRAIN)
+            self.X_train = self.X[:n_entries_train]
+            self.X_test = self.X[n_entries_train:]
+            self.Y_train = self.Y[:n_entries_train]
+            self.Y_test = self.Y[n_entries_train:]
 
         self.estimator = KerasRegressor(build_fn=baseline_model, inputs=len(self.X_train.columns), epochs=100,
                          batch_size=5, verbose=0)
@@ -80,7 +101,7 @@ class StudentsEstimator:
         return pandas.concat([days_frame, X_subjects_encoded.drop("day", axis=1)], axis=1)
 
     def train(self):
-        # training model
+        # train model
         self.estimator.fit(self.X_train, self.Y_train)
 
     def predict(self, prediction_data):
@@ -100,3 +121,12 @@ class StudentsEstimator:
             predictions_int.append(int(prediction_float))
 
         return predictions_int
+
+    def test(self):
+        # check if data was previously partitioned
+        if self.X_test is None or self.Y_test is None:
+            print("No dataset available for test, no train is possible")
+            return
+
+        # return the score (a float)
+        return self.estimator.score(self.X_test, self.Y_test)

@@ -91,7 +91,7 @@ def main():
         with open(json_file, "r") as f:
             dicts_detected = json.load(f)
 
-    model = train.StudentsEstimator(dicts_detected)
+    model = train.StudentsEstimator(dicts_detected, True)
 
     print("Training the model..")
     model.train()
@@ -127,6 +127,8 @@ def main():
                                                                                 subject=event["subject"],
                                                                                 students=event["students"],
                                                                                 room=event["room"]))
+
+    print("Score (MSE): {}".format(model.test()))
 
 
 if __name__ == '__main__':
