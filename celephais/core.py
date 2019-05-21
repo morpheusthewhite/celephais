@@ -28,7 +28,8 @@ train_group = parser.add_mutually_exclusive_group(required=True)
 train_group.add_argument("--no-train", help="exit before training the model", action="store_true")
 train_group.add_argument("--predict-xml", help="the xml data (folder or file) of lessons to predict")
 parser.add_argument("--rooms-json", help="the json containing the rooms in which classes will be allocated")
-
+parser.add_argument("--print-score", action="store_true", help="use a part of the dataset to calculate "
+                                                               "the score of the net used for the prediction")
 
 def main():
     parsed_args = parser.parse_args()
@@ -127,8 +128,8 @@ def main():
                                                                                 subject=event["subject"],
                                                                                 students=event["students"],
                                                                                 room=event["room"]))
-
-    print("Score (MSE): {}".format(model.test()))
+    if parsed_args.print_score:
+        print("Score (MSE): {}".format(model.test()))
 
 
 if __name__ == '__main__':
