@@ -31,6 +31,7 @@ parser.add_argument("--rooms-json", help="the json containing the rooms in which
 parser.add_argument("--print-score", action="store_true", help="use a part of the dataset to calculate "
                                                                "the score of the net used for the prediction")
 
+
 def main():
     parsed_args = parser.parse_args()
 
@@ -41,9 +42,18 @@ def main():
 
     img_paths = []
     if parsed_args.image is not None:
-        img_paths = data_parse.parse_images(parsed_args.image)
+        try:
+            img_paths = data_parse.parse_images(parsed_args.image)
+        except FileNotFoundError:
+            print("Image folder/file does not exist")
+            return
     elif parsed_args.xml is not None:  # xml is given instead
-        xml_paths = data_parse.parse_xmls(parsed_args.xml)
+
+        try:
+            xml_paths = data_parse.parse_xmls(parsed_args.xml)
+        except FileNotFoundError:
+            print("Xml file/folder does not exist")
+            return
 
         # for each xml the path to the associated image is calculated
         dicts_parsed = []
@@ -89,8 +99,12 @@ def main():
     elif parsed_args.json is not None:
         json_file = os.path.join(os.getcwd(), parsed_args.json)
 
-        with open(json_file, "r") as f:
-            dicts_detected = json.load(f)
+        try:
+            with open(json_file, "r") as f:
+                dicts_detected = json.load(f)
+        except FileNotFoundError:
+            print("json file does not exist")
+            return
 
     model = train.StudentsEstimator(dicts_detected, True)
 
@@ -98,7 +112,11 @@ def main():
     model.train()
     print("Training completed")
 
-    xml_predict_paths = data_parse.parse_xmls(parsed_args.predict_xml)
+    try:
+        xml_predict_paths = data_parse.parse_xmls(parsed_args.predict_xml)
+    except FileNotFoundError:
+        print("predict-xml file/folder does not exist")
+        return
 
     # read xlms which contains data to predict
     dicts_prediction_parsed = []
@@ -117,8 +135,12 @@ def main():
     for index, students in enumerate(students_predicted):
         dicts_prediction_parsed[index]["students"] = students
 
-    with open(os.path.join(os.getcwd(), parsed_args.rooms_json)) as f:
-        rooms = json.load(f)
+    try:
+        with open(os.path.join(os.getcwd(), parsed_args.rooms_json)) as f:
+            rooms = json.load(f)
+    except FileNotFoundError:
+        print("room-json file does not exist")
+        return
 
     solution = optimization.assign_classes(dicts_prediction_parsed, rooms)
 

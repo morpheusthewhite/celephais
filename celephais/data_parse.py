@@ -7,6 +7,9 @@ def parse_images(image_path):
     """
     images = []
 
+    if not os.path.exists(image_path):
+        raise FileNotFoundError
+
     # if a directory is passed
     if os.path.isdir(image_path):
         images_listed = os.listdir(image_path)
@@ -28,6 +31,9 @@ def parse_xmls(xml_path):
     xml_paths = []
 
     xml_path_abs = os.path.join(os.getcwd(), xml_path)
+
+    if not os.path.exists(xml_path_abs):
+        raise FileNotFoundError
 
     # if a directory is passed
     if os.path.isdir(xml_path_abs):
