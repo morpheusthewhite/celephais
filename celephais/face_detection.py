@@ -12,6 +12,7 @@ CLASSIFIER_FILENAME_PROFILE = pkg_resources.resource_filename(__name__,
                                                                            '/haarcascade_profileface.xml'))
 
 OVERLAPPING_THRESHOLD = 0.9
+IMAGE_PREFIX = "detected"
 
 face_cascade_frontal = cv.CascadeClassifier(os.path.join(CLASSIFIERS_FOLDER, CLASSIFIER_FILENAME_FRONTAL))
 face_cascade_profile = cv.CascadeClassifier(os.path.join(CLASSIFIERS_FOLDER, CLASSIFIER_FILENAME_PROFILE))
@@ -85,3 +86,24 @@ def face_detection_count(img_raw):
     gray = cv.cvtColor(img_raw, cv.COLOR_BGR2GRAY)
 
     return len(face_detection_get_faces(gray))
+
+
+def detect_show_image(img):
+    face_detection_draw_rectangles(img)
+    cv.imshow('sample image', img)
+    cv.waitKey(0)
+
+
+def detect_save_image(img, img_folder, img_name):
+    folder_path = os.path.join(os.getcwd(), img_folder)
+
+    if not os.path.exists(folder_path):
+        print(folder_path + " does not exists, image cannot be saved")
+
+    # save the image in the given folder
+    img_path = os.path.join(os.getcwd(), img_folder, img_name)
+
+    face_detection_draw_rectangles(img)
+    (dir, filename) = os.path.split(img_path)
+    new_filename = os.path.join(dir, IMAGE_PREFIX + filename)
+    cv.imwrite(new_filename, img)

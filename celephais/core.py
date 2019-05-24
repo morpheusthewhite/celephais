@@ -2,6 +2,7 @@ import cv2 as cv
 import os
 import argparse
 import json
+import sys
 
 from celephais import face_detection
 from celephais import metadata
@@ -30,27 +31,38 @@ train_group.add_argument("--predict-xml", help="the xml data (folder or file) of
 parser.add_argument("--rooms-json", help="the json containing the rooms in which classes will be allocated")
 parser.add_argument("--print-score", action="store_true", help="use a part of the dataset to calculate "
                                                                "the score of the net used for the prediction")
+parser.add_argument("--save-imgs", help="the folder in which images with detected faces will be saved as "
+                                              "'detected_ORIGINAL_FILENAME' (cannot be used with --ojson)")
+
+
+def check_parser_integrity(parsed_args):
+    if not parsed_args.no_train and parsed_args.rooms_json is None:
+        print("--rooms-json needed when --no-train is missing")
+        parser.print_help()
+        sys.exit(1)
+
+    elif parsed_args.save_imgs is not None and parsed_args.ojson is not None:
+        print("--save-imgs and --ojson cannot be used together")
+        parser.print_help()
+        sys.exit(1)
 
 
 def main():
     parsed_args = parser.parse_args()
 
-    if not parsed_args.no_train and parsed_args.rooms_json is None:
-        print("--rooms-json needed when --no-train is missing")
-        parser.print_help()
-        return
+    check_parser_integrity(parsed_args)
 
     img_paths = []
     if parsed_args.image is not None:
         try:
-            img_paths = data_parse.parse_images(parsed_args.image)
+            img_paths = data_parse.get_images_path(parsed_args.image)
         except FileNotFoundError:
             print("Image folder/file does not exist")
             return
     elif parsed_args.xml is not None:  # xml is given instead
 
         try:
-            xml_paths = data_parse.parse_xmls(parsed_args.xml)
+            xml_paths = data_parse.get_xmls_path(parsed_args.xml)
         except FileNotFoundError:
             print("Xml file/folder does not exist")
             return
@@ -70,9 +82,10 @@ def main():
         img = cv.imread(img_path)
 
         if parsed_args.show:
-            face_detection.face_detection_draw_rectangles(img)
-            cv.imshow('sample image', img)
-            cv.waitKey(0)
+            face_detection.detect_show_image(img)
+            continue
+        elif parsed_args.save_imgs is not None:
+            face_detection.detect_save_image(img, parsed_args.save_imgs, os.path.basename(img_path))
             continue
         else:  # if show is not specified the number of face detected are printed on stdout
             face_detected = face_detection.face_detection_count(img)
@@ -113,7 +126,7 @@ def main():
     print("Training completed")
 
     try:
-        xml_predict_paths = data_parse.parse_xmls(parsed_args.predict_xml)
+        xml_predict_paths = data_parse.get_xmls_path(parsed_args.predict_xml)
     except FileNotFoundError:
         print("predict-xml file/folder does not exist")
         return

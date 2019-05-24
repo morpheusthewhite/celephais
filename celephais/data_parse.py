@@ -1,7 +1,7 @@
 import os
 
 
-def parse_images(image_path):
+def get_images_path(image_path):
     """
     returns a list of the absolute paths to the images (more than 1 if image_path is a folder, 1 if is a file)
     """
@@ -24,7 +24,7 @@ def parse_images(image_path):
     return images
 
 
-def parse_xmls(xml_path):
+def get_xmls_path(xml_path):
     """
     returns a list of the absolute paths to the xmls (more than 1 if xml_path is a folder, 1 if is a file)
     """
