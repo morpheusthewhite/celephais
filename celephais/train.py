@@ -29,13 +29,13 @@ def baseline_model(inputs=9):
     model.add(Dense(1, kernel_initializer='normal'))
 
     # Compile model
-    model.compile(loss='mean_squared_error', optimizer='adam')
+    model.compile(loss='mean_squared_error', optimizer='adam', metrics=["accuracy"])
 
     return model
 
 
 class StudentsEstimator:
-    def __init__(self, training_data, partitionate_dataset=False):
+    def __init__(self, training_data):
         """
         :param training_data: the dataset (unencoded) which will be used for train/test
         :param partitionate_dataset: if True divides the given data into training and test, which will
@@ -60,23 +60,8 @@ class StudentsEstimator:
 
         self.X = self.transform_data(X_unencoded, fit=True)
 
-        if not partitionate_dataset:
-            # entire dataset in used in training
-            self.X_train = self.X
-            self.X_test = None
-            self.Y_train = self.Y
-            self.Y_test = None
-        else:
-            # dataset is partitioned in train and test sets
-            n_entries = len(self.X)
-            n_entries_train = int(n_entries * PARTITION_PROPORTION_TRAIN)
-            self.X_train = self.X[:n_entries_train]
-            self.X_test = self.X[n_entries_train:]
-            self.Y_train = self.Y[:n_entries_train]
-            self.Y_test = self.Y[n_entries_train:]
-
-        self.estimator = KerasRegressor(build_fn=baseline_model, inputs=len(self.X_train.columns), epochs=100,
-                         batch_size=5, verbose=0)
+        self.estimator = KerasRegressor(build_fn=baseline_model, inputs=len(self.X.columns), epochs=100,
+                                        batch_size=5, verbose=1)
 
     def transform_data(self, data_frame, fit=False):
 
@@ -106,7 +91,7 @@ class StudentsEstimator:
 
     def train(self):
         # train model
-        self.estimator.fit(self.X_train, self.Y_train)
+        self.estimator.fit(self.X, self.Y, validation_split=0.10)
 
     def predict(self, prediction_data):
         dp = pandas.DataFrame(prediction_data)
@@ -125,12 +110,3 @@ class StudentsEstimator:
             predictions_int.append(int(prediction_float))
 
         return predictions_int
-
-    def test(self):
-        # check if data was previously partitioned
-        if self.X_test is None or self.Y_test is None:
-            print("No dataset available for test, no train is possible")
-            return
-
-        # return the score (a float)
-        return self.estimator.score(self.X_test, self.Y_test)

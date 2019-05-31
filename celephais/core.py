@@ -119,7 +119,7 @@ def main():
             print("json file does not exist")
             return
 
-    model = train.StudentsEstimator(dicts_detected, True)
+    model = train.StudentsEstimator(dicts_detected)
 
     print("Training the model..")
     model.train()
