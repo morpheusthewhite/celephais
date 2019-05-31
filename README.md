@@ -1,7 +1,7 @@
 # Celephais
 
-An application for counting students in photos, predict their flow
-from data and assign them to a set of classrooms.
+An application for counting students in photos, predicting their flow
+from data and assigning them to a set of classrooms.
 
 ## Installation
 
@@ -24,7 +24,8 @@ runnning `celephais -h`
 usage: Celephais [-h] (--image IMAGE | --xml XML | --json JSON)
                  [--show | --ojson OJSON]
                  (--no-train | --predict-xml PREDICT_XML)
-                 [--rooms-json ROOMS_JSON]
+                 [--rooms-json ROOMS_JSON] [--print-score]
+                 [--save-imgs SAVE_IMGS]
 
 optional arguments:
   -h, --help            show this help message and exit
@@ -43,6 +44,12 @@ optional arguments:
   --rooms-json ROOMS_JSON
                         the json containing the rooms in which classes will be
                         allocated
+  --print-score         use a part of the dataset to calculate the score of
+                        the net used for the prediction
+  --save-imgs SAVE_IMGS
+                        the folder in which images with detected faces will be
+                        saved as 'detected_ORIGINAL_FILENAME' (cannot be used
+                        with --ojson)
 ```
 
 ## Required files
