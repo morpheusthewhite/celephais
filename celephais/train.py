@@ -15,6 +15,7 @@ from keras.wrappers.scikit_learn import KerasRegressor
 sys.stderr = stderr
 
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
+from sklearn.utils import shuffle
 
 PARTITION_PROPORTION_TRAIN = 0.9
 
@@ -44,7 +45,9 @@ class StudentsEstimator:
             print("No data available, exiting train")
             return
 
-        df = pandas.DataFrame(training_data)
+        # shuffle data before encoding it
+        df_unshuffled = pandas.DataFrame(training_data)
+        df = shuffle(df_unshuffled)
 
         self.Y = df["students"]
         X_unencoded = df.drop("students", axis=1)
@@ -56,6 +59,7 @@ class StudentsEstimator:
         self.one_hot_encoder_days = OneHotEncoder(sparse=False)
 
         self.X = self.transform_data(X_unencoded, fit=True)
+
         if not partitionate_dataset:
             # entire dataset in used in training
             self.X_train = self.X
