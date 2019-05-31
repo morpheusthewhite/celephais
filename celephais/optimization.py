@@ -2,18 +2,34 @@ import cplex
 
 from celephais import metadata
 
-def calculate_obj_vector(rooms_seats, lessons_students, rooms_are_rows=False):
+EPSILON = 1
 
+
+def calculate_obj_vector(rooms_seats, lessons_students, rooms_are_rows=False):
+    # the final vector to return
     costs = []
+
+    # coefficients useful for the calculation of costs, stored to speed up the process
+    coefficients = []
+
+    # calculate the len(lessons_students) coefficients
+    for i in range(len(lessons_students)):
+
+        tmp = 1
+        for j, lesson_students in enumerate(lessons_students):
+            if not j == i:
+                tmp *= (lesson_students - EPSILON * i)
+
+        coefficients.append(tmp)
 
     if rooms_are_rows:
         for room_seats in rooms_seats:
-            for lesson_students in lessons_students:
-                costs.append((lesson_students) / room_seats)
+            for (index, lesson_students) in enumerate(lessons_students):
+                costs.append(lesson_students * coefficients[index] / room_seats)
     else:
-        for lesson_students in lessons_students:
+        for (index, lesson_students) in enumerate(lessons_students):
             for room_seats in rooms_seats:
-                costs.append((lesson_students) / room_seats)
+                costs.append(lesson_students * coefficients[index] / room_seats)
 
     return costs
 
@@ -66,7 +82,6 @@ def solve_assignment_problem(rooms_seats, lessons_students):
         senses=["L"] * n_rooms * n_students,
         rhs=[rooms_seats[j] for i in range(n_students) for j in range(n_rooms)],
         range_values=[0] * n_rooms * n_students)
-
 
     try:
         cplex_model.solve()

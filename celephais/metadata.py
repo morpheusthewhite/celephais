@@ -12,7 +12,7 @@ def xml_parse(filename):
     return parsed_dict
 
 
-def group_by_time(events_list):
+def group_by_time(events_list, sort_by_students=True):
     """
     :param events_list: a list of dictionaries in the form {"day":..., "hour":..., ...}
     :return: a dictionary which contains as key the different time and as values a list of events, i.e.
@@ -32,5 +32,10 @@ def group_by_time(events_list):
             grouped_events[time].append(event)
         except KeyError:
             grouped_events[time] = [event]
+
+    # if passed, sort each time group on students
+    if sort_by_students:
+        for time, events in grouped_events.items():
+            events.sort(key=lambda d: d["students"])
 
     return grouped_events
