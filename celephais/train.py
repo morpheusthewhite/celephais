@@ -12,12 +12,29 @@ sys.stderr = open(os.devnull, 'w')
 from keras.models import Sequential
 from keras.layers import Dense
 from keras.wrappers.scikit_learn import KerasRegressor
+from keras.callbacks import EarlyStopping
 sys.stderr = stderr
 
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from sklearn.utils import shuffle
 
-PARTITION_PROPORTION_TRAIN = 0.9
+VALIDATION_FRACTION = 0.10
+N_EPOCHS = 100
+BATCH_SIZE = 5
+
+
+# root mean squared error (rmse) for regression (only for Keras tensors)
+def rmse(y_true, y_pred):
+    from keras import backend
+    return backend.sqrt(backend.mean(backend.square(y_pred - y_true), axis=-1))
+
+
+# coefficient of determination (R^2) for regression  (only for Keras tensors)
+def r_square(y_true, y_pred):
+    from keras import backend as K
+    SS_res =  K.sum(K.square(y_true - y_pred))
+    SS_tot = K.sum(K.square(y_true - K.mean(y_true)))
+    return ( 1 - SS_res/(SS_tot + K.epsilon()) )
 
 
 # define base model
@@ -25,11 +42,12 @@ def baseline_model(inputs=9):
     # create model
     model = Sequential()
     model.add(Dense(inputs, input_dim=inputs, kernel_initializer='normal', activation='relu'))
-    model.add(Dense(6, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(12, kernel_initializer='normal', activation='relu'))
+    model.add(Dense(12, kernel_initializer='normal', activation='relu'))
     model.add(Dense(1, kernel_initializer='normal'))
 
     # Compile model
-    model.compile(loss='mean_squared_error', optimizer='adam', metrics=["accuracy"])
+    model.compile(loss='mean_squared_error', optimizer='adam', metrics=[r_square, rmse])
 
     return model
 
@@ -60,8 +78,8 @@ class StudentsEstimator:
 
         self.X = self.transform_data(X_unencoded, fit=True)
 
-        self.estimator = KerasRegressor(build_fn=baseline_model, inputs=len(self.X.columns), epochs=100,
-                                        batch_size=5, verbose=1)
+        self.estimator = KerasRegressor(build_fn=baseline_model, inputs=len(self.X.columns), epochs=N_EPOCHS,
+                                        batch_size=BATCH_SIZE, verbose=1)
 
     def transform_data(self, data_frame, fit=False):
 
@@ -89,9 +107,15 @@ class StudentsEstimator:
 
         return pandas.concat([days_frame, X_subjects_encoded.drop("day", axis=1)], axis=1)
 
-    def train(self):
+    def train(self, early_stopping=True):
         # train model
-        self.estimator.fit(self.X, self.Y, validation_split=0.10)
+        callbacks = []
+
+        if early_stopping:
+            early_stopping = EarlyStopping(monitor='val_loss', patience=10)
+            callbacks.append(early_stopping)
+
+        self.estimator.fit(self.X, self.Y, validation_split=VALIDATION_FRACTION, callbacks=callbacks)
 
     def predict(self, prediction_data):
         dp = pandas.DataFrame(prediction_data)
