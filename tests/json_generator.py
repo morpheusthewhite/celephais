@@ -1,11 +1,11 @@
 import json
 import random
 
-SUBJECTS = ["SC2", "PSW", "LAB"]
-DATASET_SIZE = 100
-LESSON_HOURS = 12
-LESSON_STARTING_HOUR = 8
-OUTPUT_FILENAME = 'out.json'
+SUBJECTS = ["SC2", "PSW", "LAB", "ALG", "ANA", "STA", "PFP", "SC1"]
+DATASET_SIZE = 1000
+LESSON_HOURS = 14
+LESSON_STARTING_HOUR = 6
+OUTPUT_FILENAME = 'input_data.json'
 DAYS = ["monday", "sunday", "thursday", "wednesday", "tuesday"]
 
 assert(LESSON_HOURS + LESSON_STARTING_HOUR <= 24)
@@ -25,7 +25,7 @@ for i in range(DATASET_SIZE):
     entry = {"day": DAYS[d_index], "hour": hour, "subject": SUBJECTS[s_index], "students": students}
     dataset.append(entry)
 
-print(dataset)
+# print(dataset)
 
 # write the dataset to the output file with the given filename
 with open(OUTPUT_FILENAME, "w") as f:
