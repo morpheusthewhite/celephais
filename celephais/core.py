@@ -163,8 +163,6 @@ def main():
                                                                                 subject=event["subject"],
                                                                                 students=event["students"],
                                                                                 room=event["room"]))
-    if parsed_args.print_score:
-        print("Score (MSE): {}".format(model.test()))
 
 
 if __name__ == '__main__':

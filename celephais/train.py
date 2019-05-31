@@ -18,6 +18,8 @@ sys.stderr = stderr
 from sklearn.preprocessing import OneHotEncoder, LabelEncoder
 from sklearn.utils import shuffle
 
+import matplotlib.pyplot as plt
+
 VALIDATION_FRACTION = 0.10
 N_EPOCHS = 100
 BATCH_SIZE = 5
@@ -56,7 +58,6 @@ class StudentsEstimator:
     def __init__(self, training_data):
         """
         :param training_data: the dataset (unencoded) which will be used for train/test
-        :param partitionate_dataset: if True divides the given data into training and test, which will
         be used when called .train() and .test(), if False all dataset will be used for training
         """
         if training_data == []:
@@ -115,7 +116,22 @@ class StudentsEstimator:
             early_stopping = EarlyStopping(monitor='val_loss', patience=10)
             callbacks.append(early_stopping)
 
-        self.estimator.fit(self.X, self.Y, validation_split=VALIDATION_FRACTION, callbacks=callbacks)
+        history = self.estimator.fit(self.X, self.Y, validation_split=VALIDATION_FRACTION, callbacks=callbacks)
+
+        for score in history.history.keys():
+
+            if "val" not in score:
+                continue
+
+            score = score.replace("val_", "")
+            # summarize history for each score
+            plt.plot(history.history[score])
+            plt.title('{} plot'.format(score))
+            plt.ylabel(score)
+            plt.xlabel('epoch')
+            plt.show()
+
+        return
 
     def predict(self, prediction_data):
         dp = pandas.DataFrame(prediction_data)
