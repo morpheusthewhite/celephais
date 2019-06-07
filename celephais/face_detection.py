@@ -26,7 +26,7 @@ def face_detection_draw_rectangles(img_raw):
 
     # draw non overlapping faces
     for (x, y, w, h) in faces:
-        cv.rectangle(img_raw, (x, y), (x + w, y + h), (255, 0, 255), 2)
+        cv.rectangle(img_raw, (x, y), (x + w, y + h), (255, 0, 255), 4)
 
 
 def get_overlapping_area(x1, y1, w1, h1, x2, y2, w2, h2):
