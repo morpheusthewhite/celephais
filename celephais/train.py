@@ -122,8 +122,11 @@ class StudentsEstimator:
         for score in history.history.keys():
 
             # skip if train stats must not be plotted and the current one is a train stat
-            if not plot_train and "val" not in score:
-                continue
+            if not plot_train:
+                if "val" not in score:
+                    continue
+                else:
+                    score=score.replace("val_", "")
 
             # summarize history for each score
             plt.plot(history.history[score])
