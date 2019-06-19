@@ -32,6 +32,7 @@ parser.add_argument("--rooms-json", help="the json containing the rooms in which
 parser.add_argument("--print-score", action="store_true", help="use a part of the dataset to calculate "
                                                                "the score of the net used for the prediction")
 parser.add_argument("--plot-folder", help="save the plots of the score in the given folder", default=None)
+parser.add_argument("--plot-train", help="save also the plots of the scores on the training set", action="store_true")
 parser.add_argument("--save-imgs", help="the folder in which images with detected faces will be saved as "
                                         "'detected_ORIGINAL_FILENAME' (cannot be used with --ojson)")
 
@@ -123,7 +124,7 @@ def main():
     model = train.StudentsEstimator(dicts_detected)
 
     print("Training the model..")
-    model.train(plot_folder=parsed_args.plot_folder)
+    model.train(plot_folder=parsed_args.plot_folder, plot_train=parsed_args.plot_train)
     print("Training completed")
 
     try:
